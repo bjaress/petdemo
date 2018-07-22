@@ -1,4 +1,4 @@
-package com.bjaress;
+package com.bjaress.petdemo;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
