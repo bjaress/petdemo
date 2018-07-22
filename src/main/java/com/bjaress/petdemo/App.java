@@ -28,12 +28,6 @@ public class App {
             System.exit(-1);
         }
 
-        Map<String, String> query = argList.stream().skip(1)
-            .map(arg -> Arrays.asList(arg.split("=")))
-            .filter(parts -> parts.size() > 1)
-            .collect(Collectors.toMap(
-                        parts -> parts.get(0),
-                        parts -> parts.get(1)));
 
         CSVReader reader = new CSVReader(new FileReader(argList.get(0)));
 
@@ -42,11 +36,24 @@ public class App {
         String[] header = reader.readNext();
         writer.writeNext(header, true);
 
+
+        //Parse our dirty argument syntax for queries
+        Map<String, String> query = argList.stream().skip(1)
+            .map(arg -> Arrays.asList(arg.split("=")))
+            .filter(parts -> parts.size() > 1)
+            .collect(Collectors.toMap(
+                        parts -> parts.get(0),
+                        parts -> parts.get(1)));
+
+        Filter filter = Filter.from(header, query);
+
         while(true) {
             String[] line = reader.readNext();
             if (line == null) { break; }
 
-            writer.writeNext(line, true);
+            if (filter.isMatch(line)) {
+                writer.writeNext(line, true);
+            }
         }
         writer.close();
 
